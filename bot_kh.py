@@ -2,6 +2,8 @@ import telebot
 import wikipedia
 import re
 import random
+import schedule
+import time
 from telebot import types
 
 # bot token
@@ -59,35 +61,75 @@ f.close()
 
 # функция, обрабатывающая команду /start
 @bot.message_handler(commands=["start"])
-def start(m, res=False):
-    # 3 кнопки (факт, поговорка и вики)
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("факт")
-    item2 = types.KeyboardButton("поговорка")
-    item3 = types.KeyboardButton("wiki")
-    markup.add(item1)
-    markup.add(item2)
-    markup.add(item3)
-    bot.send_message(m.chat.id, 'Приветствую, выбери любую команду.', reply_markup=markup)
+def start(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    item_fs = types.KeyboardButton("ℹ факты и поговроки")
+    item_wiki = types.KeyboardButton("🌐 wiki")
+    item_about_bot = types.KeyboardButton("💠 о боте")
 
+    markup.add(item_fs, item_wiki, item_about_bot)
 
-# получение сообщений от юзера
+    bot.send_message(message.chat.id, f"Приветствую, {message.from_user.first_name}, выбери, что ты хочешь сделать.",
+                     reply_markup=markup)
+
 @bot.message_handler(content_types=["text"])
-def handle_text(message):
-    # факт
-    if message.text.strip() == 'факт':
-        answer = random.choice(facts)
-    # поговорка
-    elif message.text.strip() == 'поговорка':
-        answer = random.choice(thinks)
-    # wiki
-    elif message.text.strip() == 'wiki' :
-        bot.send_message(m.chat.id, 'Пришли любой термин, который тебя интересует.')
-        # answer = getwiki(message.text)
-    # отсылаем сообщение юзеру в чат
-    bot.send_message(message.chat.id, answer)
+def bot_message(message):
+    # блок меню с выбором факта или поговорки
+    if message.text == "ℹ факты и поговроки":
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+
+        item_f = types.KeyboardButton("факт")
+        item_s = types.KeyboardButton("поговорка")
+        item_back = types.KeyboardButton("🔚 назад")
+        markup.add(item_s, item_f, item_back)
+
+        bot.send_message(message.chat.id, "Пожалуйста, выберите что вы хотите увидеть.", reply_markup=markup)
+
+    # блок кода с фактой и логикой
+    elif message.text == "факт":
+        bot.send_message(message.chat.id, random.choice(facts))
+    elif message.text == "поговорка":
+        bot.send_message(message.chat.id, random.choice(thinks))
+
+    # блок с wiki
+    elif message.text == "🌐 wiki":
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+        item_back = types.KeyboardButton("🔚 назад")
+        markup.add(item_back)
+
+        bot.send_message(message.chat.id, "Пожалуйста, напишите то, что вас интересует:", reply_markup=markup)
+        bot.register_next_step_handler(message, answer_wiki)
+
+    elif message.text == "💠 о боте":
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+        item_back = types.KeyboardButton("🔚 назад")
+        markup.add(item_back)
+
+        bot.send_message(message.chat.id, "Создатель бота: KH_Mad. Бот был написан для лабораторки по ООП.",
+                         reply_markup=markup)
+
+    elif message.text == "🔚 назад" or "меню":
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+
+        item_fs = types.KeyboardButton("ℹ факты и поговроки")
+        item_wiki = types.KeyboardButton("🌐 wiki")
+        item_about_bot = types.KeyboardButton("💠 о боте")
+        markup.add(item_fs, item_wiki, item_about_bot)
+
+        bot.send_message(message.chat.id, "основное меню", reply_markup=markup)
+
+def answer_wiki(message):
+    new_answer = getwiki(answer_wiki())
+    bot.reply_to(new_answer)
 
 
+@bot.message_handler(commands=["website"])
+def open_website(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("Сайт бота", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"))
+    bot.send_message(message.chat.id, "Ссылка на сайт бота (не судите строго):", parse_mode="html", reply_markup=markup)
 
 # запуск бота
 bot.polling(none_stop=True, interval=0)
