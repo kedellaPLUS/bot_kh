@@ -99,7 +99,8 @@ def bot_message(message):
         markup.add(item_back)
 
         bot.send_message(message.chat.id, "Пожалуйста, напишите то, что вас интересует:", reply_markup=markup)
-        bot.register_next_step_handler(message, answer_wiki)
+
+        bot.register_next_step_handler(message, get_wiki)
 
     elif message.text == "💠 о боте":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -120,9 +121,9 @@ def bot_message(message):
 
         bot.send_message(message.chat.id, "основное меню", reply_markup=markup)
 
-def answer_wiki(message):
-    new_answer = getwiki(answer_wiki())
-    bot.reply_to(new_answer)
+def get_wiki(message):
+    answer = message.text
+    bot.send_message(message.chat.id, getwiki(answer))
 
 
 @bot.message_handler(commands=["website"])
