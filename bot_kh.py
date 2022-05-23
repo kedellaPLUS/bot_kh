@@ -43,6 +43,25 @@ def getwiki(s):
         return 'В энциклопедии нет информации об этом'
 
 
+# -------------------------------------------------------------------------------
+# бот, ведущий канал с анекдотами
+
+CHANNEL_NAME = "@CHANNEL_NAME"
+
+# загрузка списка шуток
+f = open("data/fun.txt", "r", encoding="UTF-8")
+jokes = f.read().split("\n")
+f.close()
+
+# пока не закончатся шутки, посылаем их в канал
+for joke in jokes:
+    bot.send_message(CHANNEL_NAME, joke)
+    # пауза в один час
+    time.sleep(10)
+
+bot.send_message(CHANNEL_NAME, "анекдоты закончились (и слава богу)")
+
+
 # ------------------------------------------------------------------------------
 # facts and (logic) thinks
 
@@ -58,6 +77,7 @@ f.close()
 
 
 # ------------------------------------------------------------------------------
+# кнопки с меню
 
 # функция, обрабатывающая команду /start
 @bot.message_handler(commands=["start"])
@@ -71,6 +91,7 @@ def start(message):
 
     bot.send_message(message.chat.id, f"Приветствую, {message.from_user.first_name}, выбери, что ты хочешь сделать.",
                      reply_markup=markup)
+
 
 @bot.message_handler(content_types=["text"])
 def bot_message(message):
@@ -121,6 +142,7 @@ def bot_message(message):
 
         bot.send_message(message.chat.id, "основное меню", reply_markup=markup)
 
+
 def get_wiki(message):
     answer = message.text
     bot.send_message(message.chat.id, getwiki(answer))
@@ -129,8 +151,10 @@ def get_wiki(message):
 @bot.message_handler(commands=["website"])
 def open_website(message):
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("Сайт бота", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"))
+    markup.add(types.InlineKeyboardButton("Сайт бота",
+                                          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"))
     bot.send_message(message.chat.id, "Ссылка на сайт бота (не судите строго):", parse_mode="html", reply_markup=markup)
+
 
 # запуск бота
 bot.polling(none_stop=True, interval=0)
