@@ -109,7 +109,7 @@ def start(message):
 @bot.message_handler(content_types=["text"])
 def bot_message(message):
     # блок меню с выбором факта или поговорки
-    if message.text == "ℹ факты/поговроки":
+    if message.text == "ℹ факты/поговорки":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
 
         item_f = types.KeyboardButton("факт")
@@ -160,10 +160,11 @@ def bot_message(message):
                                           "время, установленное разработчиком", reply_markup=markup)
 
     elif message.text == "🔚 назад" or "меню":
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 
         item_fs = types.KeyboardButton("ℹ факты и поговроки")
         item_wiki = types.KeyboardButton("🌐 wiki")
+        item_reminder = types.KeyboardButton("⏱ напоминание")
         item_about_bot = types.KeyboardButton("💠 о боте")
         markup.add(item_fs, item_wiki, item_about_bot)
 
